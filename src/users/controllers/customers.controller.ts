@@ -8,10 +8,13 @@ import {
   Get,
   ParseIntPipe,
 } from '@nestjs/common';
-import { CreateCustomertDto, UpdateCustomertDto } from 'src/dtos/customers.dto';
-import { CustomersService } from 'src/services/customers.service';
+import {
+  CreateCustomertDto,
+  UpdateCustomertDto,
+} from 'src/users/dtos/customers.dto';
+import { CustomersService } from 'src/users/services/customers.service';
 
-@Controller('categories')
+@Controller('customers')
 export class CustomersController {
   constructor(private readonly customerService: CustomersService) {}
 
