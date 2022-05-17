@@ -1,30 +1,35 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { firstValueFrom } from 'rxjs';
+import { DatabaseModule } from './database/database.module';
 
-const API_KEY = '123435436';
-const API_KEY_PROD = 'PRODkjashdk2342';
+import { enviroments } from './enviroments';
 @Module({
-  imports: [UsersModule, ProductsModule, HttpModule],
+  imports: [
+    UsersModule,
+    ProductsModule,
+    HttpModule,
+    DatabaseModule,
+    ConfigModule.forRoot({
+      envFilePath: enviroments[process.env.NODE_ENV] || '.env',
+      isGlobal: true,
+    }),
+  ],
   controllers: [AppController],
   providers: [
     AppService,
     {
-      provide: 'API_KEY',
-      useValue: process.env.NODE_ENV === 'prod' ? API_KEY_PROD : API_KEY,
-    },
-    {
       provide: 'TASKS',
       useFactory: async (http: HttpService) => {
-        const tasks = await http.get(
-          'http://jsonplaceholder.typicode.com/todos',
+        const tasks = Promise.resolve(
+          firstValueFrom(http.get('http://jsonplaceholder.typicode.com/todos')),
         );
-        const value = Promise.resolve(firstValueFrom(tasks));
-        return value;
+        return tasks;
       },
       inject: [HttpService],
     },
